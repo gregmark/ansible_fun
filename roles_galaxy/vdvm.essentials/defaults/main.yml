@@ -1,0 +1,16 @@
+---
+# Define a custom list of packages to install; if none provided, the default
+# list from vars/[distribution].yml will be used.
+#essentials_packages: []
+
+
+# Define a custom list of services to start and enable; if none provided,
+# the default list from vars/[distribution].yml will be used.
+# essentials_start_enable: []
+#
+
+
+#    - compat-gcc-34
+#    - compat-gcc-34-g77
+#    - compat-gcc-34-c++
+#    - compat-libgcc-296

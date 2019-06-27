@@ -1,0 +1,12 @@
+---
+
+- name: Sensu install/configure
+  hosts: sensu1
+  remote_user: root
+  gather_facts: yes
+  roles:
+    # WARNING: tcosta84.rabbitmq and yum do not support Debian
+    - { role: sbaerlocher.redis, when: sensu_install_server, tags: "redis" }
+    - { role: tcosta84.yum, when: sensu_install_server, tags: [ "rabbitmq" ] }
+    - { role: tcosta84.rabbitmq, when: sensu_install_server, tags: [ "rabbitmq" ] }
+    - { role: sensu, tags: [ "sensu" ] }

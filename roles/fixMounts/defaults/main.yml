@@ -1,0 +1,6 @@
+---
+# defaults file for fixMounts
+
+do_print: True
+do_clear: False
+do_fstab: False

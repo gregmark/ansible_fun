@@ -1,0 +1,20 @@
+---
+# tasks file for cachefilesd
+- name: cachefiles apt package
+  apt: pkg=cachefilesd state=installed
+  when: ansible_distribution == "Ubuntu"
+
+
+- name: cachefiles yum package
+  yum: pkg=cachefilesd state=installed
+  when: ansible_distribution == "CentOS"
+
+- name: cachefiles autostart
+  template: src=root/etc/default/cachefilesd.j2 dest=/etc/default/cachefilesd owner=root group=root
+  when: ansible_distribution == "Ubuntu"
+  
+- name: cachefiles configuration
+  template: src=root/etc/cachefilesd.conf.js dest=/etc/cachefilesd.conf owner=root group=root
+
+- name: cachefilesd service
+  service: name=cachefilesd state=started

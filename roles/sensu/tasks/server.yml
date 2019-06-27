@@ -1,0 +1,102 @@
+---
+# sensu/tasks/server.yml
+
+- name: copy the patched init script
+  copy:
+    src=sensu-{{ item }}
+    dest=/etc/init.d/
+    owner=root
+    group=root
+    mode=755
+    backup=yes
+  with_items:
+    - server
+    - api
+  when: sensu_server_patch_init_scripts and ansible_os_family == "Debian"
+  tags:
+    - config
+    - service
+
+- name: ensure the patched DEBIAN init scripts
+  command: /usr/sbin/update-rc.d -f sensu-{{ item }} remove && /usr/sbin/update-rc.d sensu-{{ item }} defaults
+  with_items:
+    - server
+    - api
+  when: sensu_server_patch_init_scripts and ansible_os_family == "Debian"
+  tags:
+    - config
+    - service
+  
+- name: enable sensu-{server,api} to survive reboot
+  service: name=sensu-{{ item }} enabled=yes
+  with_items:
+    - server
+    - api
+  tags:
+    - service
+
+- name: install gems for handlers
+  gem: name={{ item }} state=present executable={{ sensu_gem_exec }} user_install=no
+  with_items: "{{ sensu_handler_gems }}"
+  tags:
+    - pkgs
+  
+- name: copy the handlers files
+  copy:
+    src=etc/sensu/handlers/
+    dest=/etc/sensu/handlers/
+#    owner=sensu
+#    group=sensu
+#    mode=0750
+  tags:
+    - config
+
+- name: copy extension files
+  copy:
+    src=etc/sensu/extensions/
+    dest=/etc/sensu/extensions/
+    owner=sensu
+    group=sensu
+    mode=0750
+  notify:
+    - restart sensu server
+  tags:
+    - config
+
+- name: copy plugins files
+  copy:
+    src=etc/sensu/plugins/
+    dest=/etc/sensu/plugins/
+    owner=sensu
+    group=sensu
+    mode=0750
+  notify:
+    - restart sensu server
+  tags:
+    - config
+
+- name: generate config files
+  template:
+    src={{ item }}.json.j2
+    dest=/etc/sensu/conf.d/{{ item }}.json
+    owner=sensu
+    group=sensu
+    mode=0640
+  with_items:
+    - handlers
+    - handlers_aux
+    - redis
+    - api
+    - settings
+    - checks
+  notify:
+    - restart sensu server
+  tags:
+    - config
+
+- name: Ensure sensu server/api is started
+  service: name=sensu-{{ item }} state=started
+  with_items:
+    - server
+    - api
+  when: sensu_install_server

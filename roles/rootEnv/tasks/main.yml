@@ -1,0 +1,24 @@
+---
+# tasks file for rootEnv
+
+- name: Fail if not a Destro admin (io) system
+  fail: msg="This role is for io systems only"
+  when: ansible_local.hostname_parse.env != "io"
+
+- name: Check for /root directory
+  shell: test -d /root 
+  register: isRootDir
+
+#- debug: var=isRootDir
+
+- name: VIM rc file
+  copy: >
+    content="{{ rootEnv_vimrc }}"
+    dest=/root/.vimrc owner=root
+    group=root
+    mode=640
+    backup=no
+  tags: [ 'config' ] 
+  when: isRootDir.rc == 0
+
+#EOF

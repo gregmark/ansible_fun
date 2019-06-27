@@ -1,0 +1,9 @@
+---
+# defaults file for rootEnv
+
+rootEnv_vimrc: |
+  set nocompatible
+  set background=dark
+  set nohlsearch
+  set tabstop=4
+  autocmd BufNewFile,BufRead *.md set filetype=markdown

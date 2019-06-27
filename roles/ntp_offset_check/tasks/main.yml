@@ -1,0 +1,10 @@
+---
+# main.yml
+# tasks file for ntp_offset_check
+
+  - name: check ntp offset
+    shell: ntpdc -c loopinfo | awk '/^offset:/ {gsub(/-/,"",$2);print $2}'
+    register: ntp_offset
+
+  - include: reset_ntp.yml
+    when: ntp_offset.stdout|float >= 0.001 or ntp_offset.stdout|float == 0.0

@@ -1,0 +1,9 @@
+---
+
+- name: Stop Puppet
+  hosts: all
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - service: name=puppet state=stopped 
+

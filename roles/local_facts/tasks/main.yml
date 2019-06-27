@@ -1,0 +1,20 @@
+---
+# tasks file for local-facts
+  - name: Create facts.d directory
+    file: >
+      path=/etc/ansible/facts.d
+      recurse=yes
+      state=directory
+  
+  - name: Deploy fact modules
+    template: >
+      src={{ item }}.j2
+      dest=/etc/ansible/facts.d/{{ item }}.fact
+      mode=0750
+    with_items:
+      - net_env
+      - hostname_parse
+      - snmp3_check
+  
+  - name: reload ansible_local
+    setup: filter=ansible_local

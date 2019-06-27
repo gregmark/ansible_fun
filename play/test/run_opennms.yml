@@ -1,0 +1,9 @@
+---
+- name: Install and Configure OpenNMS
+  hosts: all
+  remote_user: root
+  gather_facts: yes
+  roles:
+    - { role: inkatze.PostgreSQL, tags: [ 'install' ] }
+    - { role: jdk, tags: [ 'install' ] }
+    - { role: opennms, tags: [ 'install', 'opennms' ] }

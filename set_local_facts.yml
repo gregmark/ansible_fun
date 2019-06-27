@@ -1,0 +1,7 @@
+---
+- name: Set up local custom facts
+  hosts: all
+  remote_user: root
+  gather_facts: no
+  roles:
+    - { role: local_facts, tags: [ 'local' ] }

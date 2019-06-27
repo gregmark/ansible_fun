@@ -1,0 +1,8 @@
+---
+
+- name: Configure SNMPv3
+  hosts: site
+  remote_user: root
+  gather_facts: yes
+  roles:
+  - { role: net-snmp }

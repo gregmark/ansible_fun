@@ -1,0 +1,61 @@
+#!/bin/bash
+
+
+
+# Script to generate network-related facts
+
+
+function make_json () {
+    data="$1"
+    _json="["
+    for D in $data; do
+        _json="${_json} \"$D\","
+    done
+    _json=$(echo "$_json" | sed 's/,$//')
+    _json="${_json} ]"
+    echo $_json
+}
+
+# case 10.10.161.1 in  ## For debugging purposes
+case {{ ansible_default_ipv4.gateway }} in
+    10.10.161.1) \
+        datacenter=TF;
+        resolvers="{% for ns in resolv_nameservers_6f %}{{ ns }} {% endfor %}";
+        resolv_search="{% for search in resolv_search %}{{ search }} {% endfor %}";
+        mailrelay="mail.example.com"
+        ntp_servers="10.10.104.16 10.10.104.17";;
+    10.10.*|10.10.*) \
+        datacenter=BB;
+        resolvers="{% for ns in resolv_nameservers_dt %}{{ ns }} {% endfor %}";
+        resolv_search="{% for search in resolv_search %}{{ search }} {% endfor %}";
+        mailrelay="mail.example.com"
+        ntp_servers="10.10.104.16 10.10.104.17";;
+    10.10.138.*) \
+        datacenter=ARCH;
+        resolvers="{% for ns in resolv_nameservers_dt %}{{ ns }} {% endfor %}";
+        resolv_search="{% for search in resolv_search %}{{ search }} {% endfor %}";
+        mailrelay="mail.example.com"
+        ntp_servers="10.10.104.16 10.10.104.17";;
+    *) \
+        datacenter=UNKNOWN;
+        resolvers="{% for ns in resolv_nameservers %}{{ ns }} {% endfor %}";
+        resolv_search="{% for search in resolv_search %}{{ search }} {% endfor %}";
+        mailrelay="mail.example.com"
+        ntp_servers="10.10.104.16 10.10.104.17";;
+esac
+
+# Adjust resolv.conf search param for VDIs
+if [[ "$datacenter" == "BB" && $(hostname) =~ ".cloud." ]] ; then
+    resolv_search="{% for search in resolv_search_vdi %}{{ search }} {% endfor %}";
+fi
+
+cat <<EOF
+{
+    "datacenter"    : "${datacenter}",
+    "resolvers"     : $(make_json "$resolvers"),
+    "resolv_search" : $(make_json "$resolv_search"),
+    "mailrelay"     : "${mailrelay}",
+    "ntp_servers"   : $(make_json "$ntp_servers")
+}
+EOF
+

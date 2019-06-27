@@ -1,0 +1,31 @@
+---
+- name: VMWare Check
+  hosts: site
+  remote_user: root
+  gather_facts: yes
+
+#- include: set_local_facts.yml
+
+- name: Set up dynamic host groups
+  hosts: site
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: group it real good
+      group_by: key=env_{{ ansible_local.net_env.datacenter | default(omit) }}
+      ignore_errors: yes
+
+
+- name: Filesystem status check
+  hosts: env_BB
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: touch a file
+      ignore_errors: yes
+      file: path=/tmp/file.test state=touch mode="u=rw,g=rw,o=r"
+
+    - name: touch a file harder
+      command: "touch /tmp/file.tmp"
+
+

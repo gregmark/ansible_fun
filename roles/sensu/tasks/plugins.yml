@@ -1,0 +1,51 @@
+#sensu/tasks/plugins.yml
+
+- name: install REDHAT gem compile tools
+  yum: name={{ item }} state=latest
+  with_items: "{{ sensu_gem_compile_tools }}"
+  when: ansible_os_family == "RedHat"
+  tags: [ 'pkgs' ]
+
+# DEBUG
+- debug: var=sensu_gem_exec
+
+- name: install REDHAT plugin yum dependencies
+  yum: name={{ item }} state=latest
+  with_items: "{{ sensu_plugin_pkg_dependencies }}"
+  when: ansible_os_family == "RedHat"
+  notify:
+    - restart sensu server
+    - restart sensu client
+  tags: [ 'pkgs' ]
+
+- name: install DEBIAN plugin apt dependencies
+  apt: name={{ item }} state=latest
+  with_items: "{{ sensu_plugin_pkg_dependencies }}"
+  when: ansible_os_family == "Debian"
+  notify:
+    - restart sensu server
+    - restart sensu client
+  tags: [ 'pkgs' ]
+
+- name: install EMBEDDED plugin gem dependencies
+  gem: name={{ item }} state=latest executable={{ sensu_gem_exec }} user_install=no
+  with_items: "{{ sensu_plugin_gem_dependencies }}"
+  notify:
+    - restart sensu server
+    - restart sensu client
+  tags: [ 'pkgs' ]
+
+- name: install EMBEDDED sensu-plugin gem
+  gem: name=sensu-plugin state=latest executable={{ sensu_gem_exec }} user_install=no
+  notify:
+    - restart sensu server
+    - restart sensu client
+  tags: [ 'pkgs' ]
+
+- name: install EMBEDDED gems for sensu plugins
+  gem: name={{ item }} state=latest executable={{ sensu_gem_exec }} user_install=no
+  with_items: "{{ sensu_plugin_gems }}"
+  notify:
+    - restart sensu server
+    - restart sensu client
+  tags: [ 'pkgs' ]

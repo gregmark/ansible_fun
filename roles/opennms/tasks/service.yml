@@ -1,0 +1,6 @@
+---
+
+- name: OpenNMS - keep service started
+  service: name=opennms enabled=true state=started
+
+  

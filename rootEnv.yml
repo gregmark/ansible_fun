@@ -1,0 +1,8 @@
+---
+
+- name: Setup environment for Destro root user
+  hosts: site
+  remote_user: root
+  gather_facts: yes
+  roles:
+    - rootEnv

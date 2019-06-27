@@ -1,0 +1,11 @@
+---
+- name: Set up dynamic host groups
+  hosts: site
+  remote_user: root
+  gather_facts: no
+  tasks:
+    #- group_by: key=env_{{ ansible_virtualization_role }}
+    - group_by: key=env_{{ ansible_domain }}
+    #- group_by: key=env_{{ ansible_local.hostname_parse.env }}
+  tags:
+    - always

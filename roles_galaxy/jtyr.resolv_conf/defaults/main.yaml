@@ -1,0 +1,20 @@
+---
+
+# Default location of the resolv.conf
+resolv_conf_file: /etc/resolv.conf
+
+# Default nameservers
+resolv_conf_nameserver:
+  - 10.10.148.1
+
+# Default domain
+resolv_conf_domain: ''
+
+# Default search list
+resolv_conf_search: [ 'example.com' ]
+
+# Defautl sort list
+resolv_conf_sortlist: []
+
+# Default options
+resolv_conf_options: []

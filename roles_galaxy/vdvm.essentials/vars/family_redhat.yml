@@ -1,0 +1,43 @@
+---
+essentials_ntp_daemon: ntpd
+
+__essentials_packages:
+  #- acpid
+  - bind-utils
+  #- cronie
+  - curl
+  - git
+  - libselinux-python
+  - man
+  #- MySQL-python
+  - nano
+  - nc
+  - nmap
+  - ntp
+  - ntpdate
+  - openssh-clients
+  #- policycoreutils-python
+  - python-setuptools
+  - rsync
+  - screen
+  - sudo
+  - sysstat
+  - telnet
+  - traceroute
+  - unzip
+  - wget
+  - zip
+  #- bwm-ng
+  #- htop
+  - iftop
+  #- lshw
+  - ncdu
+  #- nethogs
+  #- nload
+  #- compat-libgcc-296
+
+
+
+__essentials_start_enable:
+  - acpid
+  - "{{ essentials_ntp_daemon }}"

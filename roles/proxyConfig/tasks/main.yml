@@ -1,0 +1,21 @@
+---
+# tasks file for proxyConfig
+
+- name: Fail if not Linux
+  fail: 'msg="[PLAY FAIL]\: you gotta be this Linux to ride"'
+  when: ansible_system != "Linux"
+
+- name: Fail if Datacenter is not Downingtown
+  fail: 'msg="[PLAY FAIL]\: you gotta be this BB to ride"'
+  when: ansible_local.net_env.datacenter != "BB" 
+
+- name: Set wgetrc
+  copy: src=etc/wgetrc dest=/etc/wgetrc backup=yes
+
+- name: Check for /etc/profile.d directory
+  shell: test -d /etc/profile.d
+  register: isProfileD
+
+- name: Set BB profile.d include file
+  copy: src=etc/profile.d/dt-proxy.sh dest=/etc/profile.d/dt-proxy.sh
+  when: isProfileD.rc == 0

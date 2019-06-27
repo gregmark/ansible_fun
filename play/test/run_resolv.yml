@@ -1,0 +1,10 @@
+---
+- include: set_local_facts.yml
+  tags: "[ local ]"
+
+- name: Set Resolv.Conf
+  hosts: all
+  remote_user: root
+  gather_facts: yes
+  roles:
+    - jtyr.resolv_conf

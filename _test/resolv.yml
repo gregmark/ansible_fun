@@ -1,0 +1,39 @@
+---
+- name: Set Resolv.Conf
+  hosts: site
+  remote_user: root
+  gather_facts: no
+  # set to yes if include set_local_facts is disabled
+
+- include: set_local_facts.yml
+
+- name: Set up dynamic host groups
+  hosts: site
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: group it real good
+      group_by: key=dc_{{ ansible_local.net_env.datacenter }}_{{ ansible_os_family }}
+  
+- name: Top Floor -- Set resolv.conf
+  hosts: dc_TF_RedHat
+  remote_user: root
+  gather_facts: no
+  roles:
+    - { role: jtyr.resolv_conf, tags: [ 'TF' ] }
+  vars:
+    - resolv_conf_nameserver:
+      - 10.10.161.19
+      - 10.10.161.12
+
+- name: Blitzberg -- Set resolv.conf
+  hosts: dc_BB_RedHat
+  remote_user: root
+  gather_facts: no
+  roles:
+    - { role: jtyr.resolv_conf, tags: [ 'BB' ] }
+  vars:
+    - resolv_conf_nameserver:
+      - 10.10.148.4
+      - 10.10.109.19
+      - 10.10.15.100

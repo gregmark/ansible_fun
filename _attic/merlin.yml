@@ -1,0 +1,10 @@
+----
+
+- name: Merlin crap
+  hosts: all
+  remote_user: root
+  gather_facts: yes
+  tasks:
+
+  - name: get the gateway, man
+    debug: var=ansible_default_ipv4.gateway

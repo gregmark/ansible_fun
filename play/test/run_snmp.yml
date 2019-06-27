@@ -1,0 +1,10 @@
+---
+
+- name: Install NET-SNMP
+  hosts: site
+  remote_user: root
+  gather_facts: yes
+
+- include: set_local_facts.yml
+- include: set_group_by.yml
+- include: net-snmp.yml

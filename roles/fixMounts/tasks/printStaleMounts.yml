@@ -1,0 +1,5 @@
+---
+
+- name: Print - stale mounts
+  command: echo {{ item }}
+  with_items: "{{ staleMounts.stdout_lines }}"

@@ -1,0 +1,26 @@
+---
+#- name: Ping Sweep
+#  hosts: all
+#  remote_user: root
+#  gather_facts: yes
+#
+#- include: set_local_facts.yml
+
+- name: Set up dynamic host groups
+  hosts: all
+  remote_user: root
+  gather_facts: yes
+  tasks:
+    - name: group it real good
+      group_by: key=env_{{ ansible_local.net_env.datacenter }}
+
+- name: ping Sweep
+  hosts: env_TF
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: Do it
+      ping:
+      
+
+

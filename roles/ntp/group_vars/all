@@ -1,0 +1,5 @@
+ntp_serv1: server io-ntp-03.example.com
+ntp_serv2: server io-ntp-02.example.com
+ntp_serv3: server io-ntp-01.example.com
+
+driftfile: /var/lib/ntp/drift

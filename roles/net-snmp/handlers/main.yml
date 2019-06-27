@@ -1,0 +1,8 @@
+---
+# handlers file for net-snmp
+
+- name: Restart snmpd
+  service:
+    name: 'snmpd'
+    enabled: True
+    state: 'restarted'

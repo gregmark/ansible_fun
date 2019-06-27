@@ -1,0 +1,28 @@
+# tasks file for fixMounts
+---
+
+- name: Gather - ensure RHEL utilities
+  yum: name={{ item }} state=present
+  with_items: [ "lsof", "findutils", "psmisc", "gawk" ]
+  when: ansible_os_family == "RedHat"
+
+- name: Gather - ensure Debian utilities
+  apt: name={{ item }} state=present
+  with_items:
+  with_items: [ "lsof", "findutils", "psmisc", "nawk" ]
+  when: ansible_os_family == "Debian"
+
+- name: Gather - search for stale mounts
+  shell: df -t nfs 2>&1 | awk '/Stale file handle/{print substr($2,2,(length($2) -3))}' 
+  register: staleMounts
+
+#- debug: var=staleMounts
+
+- include: printStaleMounts.yml
+  when: staleMounts.stdout and do_print
+
+- include: clearStaleMounts.yml
+  when: staleMounts.stdout and do_clear
+
+- include: fixupFstab.yml
+  when: do_fstab

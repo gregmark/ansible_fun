@@ -1,0 +1,17 @@
+---
+# sensu/tasks/main.yml
+
+- include: common.yml
+  tags: [ "always" ] 
+
+- include: server.yml
+  when: sensu_install_server
+  tags: [ "sensu-server" ]
+
+- include: uchiwa.yml
+  when: sensu_install_server and sensu_install_uchiwa
+  tags: [ "sensu-server", "sensu-ui" ]
+
+- include: client.yml
+  when: sensu_install_client
+  tags: [ "sensu-client" ] 

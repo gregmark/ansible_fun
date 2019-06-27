@@ -1,0 +1,11 @@
+---
+
+- name: Run sensu with dynamic variables
+  hosts: site
+  remote_user: root
+  gather_facts: yes
+
+- include: set_local_facts.yml
+- include: set_group_by.yml
+- include: essentials.yml
+#- include: sensu.yml

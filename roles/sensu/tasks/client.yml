@@ -1,0 +1,31 @@
+---
+# sensu/tasks/client.yml
+
+- name: enable sensu-client to survive reboot
+  service: name=sensu-client enabled=yes
+  tags: [ 'service' ]
+
+- name: copy all the checks files
+  copy:
+    src=etc/sensu/plugins/
+    dest=/etc/sensu/plugins/
+    owner={{ sensu_user }}
+    group={{ sensu_group }}
+    mode=0750
+  tags:
+    [ 'config' ]
+
+- name: generate config files
+  template:
+    src=client.json.j2
+    dest=/etc/sensu/conf.d/client.json
+    owner=sensu
+    group=sensu
+    mode=0640
+    #backup=yes
+  notify: restart sensu client
+  tags: [ 'config', 'service' ]
+
+- name: Ensure sensu client is started
+  service: name=sensu-client state=started
+  when: sensu_install_client

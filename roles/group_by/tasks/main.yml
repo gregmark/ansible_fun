@@ -1,0 +1,5 @@
+---
+# tasks file for group_by
+
+- name: Set up dynamic host groups
+  group_by: key=env_{{ ansible_local.hostname_parse.env }}

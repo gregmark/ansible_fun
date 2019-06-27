@@ -1,0 +1,11 @@
+syslocation EchoBase {{ ansible_local.net_env.datacenter }}
+syscontact gregmark@gmail.com
+sysservices 76
+proc puppet
+rwuser initial
+rwuser {{ snmp_usm_user }}
+createUser initial MD5 echobase99 DES
+
+# Allow Systems Management Data Engine SNMP to connect to snmpd using SMUX
+smuxpeer .1.3.6.1.4.1.674.10892.1
+#mibs +MIB-Dell-10892:StorageManagement-MIB:DCS3FRU-MIB:DCS3RMT-MIB

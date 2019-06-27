@@ -1,0 +1,14 @@
+---
+# remove_sensu/tasks/main.yml
+
+- name: register sensu version
+  shell: rpm --qf  '%{VERSION}' -q sensu
+  register: sensu_version
+  ignore_errors: yes
+  tags: [ 'always' ]
+
+- debug: var={{ sensu_version.stdout }}
+  tags: [ 'always' ]
+
+- include: remove_it.yml
+  when: sensu_version.stdout|version_compare('0.20.3', '<') or sensu_version.rc != 0 or rmsensu_force

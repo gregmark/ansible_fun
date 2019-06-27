@@ -1,0 +1,8 @@
+---
+# tasks file for postgresql
+
+- name: Install PostgreSQL server
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: postgresql_packages

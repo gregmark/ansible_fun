@@ -1,0 +1,32 @@
+---
+# sensu/tasks/uchiwa.yml
+
+- name: install uchiwa for Debian
+  apt: name=uchiwa state=present
+  when: ansible_os_family == "Debian"
+  tags:
+    - pkgs
+
+- name: install uchiwa for RedHat
+  yum: name=uchiwa state=present
+  when: ansible_os_family == "RedHat"
+  tags:
+    - pkgs
+
+- name: enable uchiwa to survive reboot
+  service: name=uchiwa enabled=yes
+  tags:
+    - service
+
+- name: create uchiwa config file
+  template:
+    src=uchiwa.json.j2
+    dest=/etc/sensu/uchiwa.json
+    owner=sensu
+    group=sensu
+    mode=0640
+    backup=yes
+  notify:
+    - restart uchiwa service
+  tags:
+    - config

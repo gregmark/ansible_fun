@@ -1,0 +1,19 @@
+---
+
+- name: set/unset nvidia as docker runtime
+  hosts: localhost
+  connection: local
+  gather_facts: yes
+  vars:
+    default-runtime: "{{ rt | default('default') }}" 
+  roles:
+    - { role: nvidia.nvidia_docker }
+  pre-tasks:
+    - name: ubuntu dependency
+      fail:
+        msg: "No {{ ansible_distribution }}! This playbook is not for you!"
+      when: ansible_distribution != "Ubuntu"
+  
+
+
+# vim: ts=2 et ft=yaml

@@ -1,0 +1,16 @@
+---
+- hosts: research.example.com
+  remote_user: root
+  gather_facts: no
+  tasks:
+
+
+  - name: echo stuff
+    command: echo "0.252"
+    register: myecho
+
+#  - set_fact: myfloat={{ myecho | float }}
+
+  - name: echo more stuff
+    command: echo more stuff
+    when: myecho.stdout|float > 0.001

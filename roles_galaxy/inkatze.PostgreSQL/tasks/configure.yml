@@ -1,0 +1,31 @@
+---
+# task file for postgresql
+
+- name: Check if cluster exists
+  stat: path=/var/lib/pgsql/data/base
+  register: postgresql_cluster
+
+- name: Initialize cluster
+  shell: postgresql-setup initdb
+  when: not postgresql_cluster.stat.exists
+
+- name: Configure pg_hba.conf
+  template:
+    src: pg_hba.conf.j2
+    dest: "/var/lib/pgsql/data/pg_hba.conf"
+    owner: "{{ postgresql_admin_user }}"
+    group: "{{ postgresql_admin_user }}"
+    mode: 0640
+  notify: restart postgresql
+
+- name: Configure postgresql.conf
+  lineinfile:
+    dest: "/var/lib/pgsql/data/postgresql.conf"
+    state: present
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.guc }}"
+  with_items: postgresql_conf_default_guc
+  notify: restart postgresql
+
+- name: Start and enable the service
+  service: name=postgresql state=started enabled=yes

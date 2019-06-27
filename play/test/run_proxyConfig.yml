@@ -1,0 +1,8 @@
+---
+
+- name: Setup OS proxy configuration for BB Linux hosts
+  hosts: site
+  remote_user: root
+  gather_facts: yes
+  roles:
+    - proxyConfig

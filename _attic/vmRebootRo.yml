@@ -1,0 +1,29 @@
+---
+- name: VMWare Check
+  hosts: all
+  remote_user: root
+  gather_facts: yes
+
+- name: Set up dynamic host groups
+  hosts: all
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: group it real good
+      group_by: key=env_{{ ansible_virtualization_type }}_{{ ansible_virtualization_role }}
+  
+- name: Filesystem status check
+  hosts: env_VMware_guest
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: touch a file and reboot RO systems
+      ignore_errors: yes
+      command: "touch /tmp/file"
+      register: result
+#    - debug: var=result.stderr.split()[4]
+    - command: reboot 
+      when: result.stderr.split()[4] == "Read-only"
+      ignore_errors: yes
+
+

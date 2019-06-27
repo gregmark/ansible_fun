@@ -1,0 +1,39 @@
+---
+# tasks file for net-snmp
+
+- name: Install packages for Debian
+  apt: name={{ item }} state=latest install_recommends=False
+  with_items: "{{ snmp_deb_pkgs }}"
+  when: ansible_os_family == "Debian"
+
+- name: Install custom snmpd.service unit file
+  copy:
+    src: 'etc/systemd/system/snmpd.service'
+    dest: '/etc/systemd/system/snmpd.service'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: [ 'Restart snmpd' ]
+  when: ansible_os_family == "Debian"
+
+- name: Configure /etc/snmp/snmpd.conf
+  template:
+    src: etc/snmp/snmpd.conf.j2
+    dest: /etc/snmp/snmpd.conf
+    owner: root
+    group: root
+    mode: 0600
+  notify: [ 'Restart snmpd' ]
+
+- name: Configure /etc/default/snmpd
+  template:
+    src: etc/default/snmpd.j2
+    dest: /etc/default/snmpd
+    owner: root
+    group: root
+    mode: 0644
+  notify: [ 'Restart snmpd' ]
+
+- name: Configure SNMPv3 credentials
+  include: configure_snmpv3_credentials.yml
+  when: ansible_local.snmp3_check.snmp3_check != "pass"

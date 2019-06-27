@@ -1,0 +1,16 @@
+---
+
+- name: Run VDI tasks
+  hosts: site
+  remote_user: root
+  gather_facts: no
+  tasks: 
+
+    - name: VDI -- Change runlevel to 5
+      lineinfile:
+        dest: '/etc/inittab'
+        regexp: '^id:.*initdefault'
+        line: 'id:5:initdefault:'
+
+    - name: VDI -- VNCserver ensure
+      service: name=vncserver state=started enabled=yes

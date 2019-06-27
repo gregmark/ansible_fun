@@ -1,0 +1,6 @@
+---
+# tasks file for jdk
+
+- name: Install jdk
+  yum: name=jdk state=present disablerepo="*" enablerepo=example7
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "7"

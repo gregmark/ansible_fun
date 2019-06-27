@@ -1,0 +1,13 @@
+---
+# reset_ntp.yml
+
+- name: stop ntpd
+  service: name=ntpd state=stopped
+
+- name: run ntpdate
+  shell: ntpdate {{ ansible_local.net_env.ntp_servers[0] }} && ntpdate {{ ansible_local.net_env.ntp_servers[0] }} && ntpdate {{ ansible_local.net_env.ntp_servers[0] }}
+  ignore_errors: yes
+
+- name: start ntpd
+  service: name=ntpd state=started
+

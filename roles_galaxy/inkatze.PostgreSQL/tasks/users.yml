@@ -1,0 +1,12 @@
+---
+# task file for postgresql
+
+- name: Add PostgreSQL roles
+  postgresql_user:
+    state: present
+    name: "{{ item.name }}"
+    encrypted: no
+    password: "{{ item.pass }}"
+    role_attr_flags: "{{ item.flags }}"
+  with_items: postgresql_users
+  when: postgresql_users|length > 0

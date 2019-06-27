@@ -1,0 +1,129 @@
+---
+# defaults file for sensu
+
+sensu_settings: {}
+
+# Installation type
+sensu_single_client_use: false
+sensu_server_handler_items:
+  - server
+  - api
+  - client
+### Use this when sensu_single_client_user is True
+# sensu_server_handler_items:
+#   - server
+#   - api
+
+# Sensu installation
+sensu_install_client: true
+sensu_install_server: false
+sensu_install_uchiwa: false
+
+# Sensu ownership
+sensu_user:  sensu
+sensu_group: sensu
+
+# Sensu Ruby
+sensu_embedded_ruby: "true"
+sensu_embed_path: "/opt/sensu/embedded/bin"
+sensu_gem_exec: "{{ sensu_embed_path }}/gem"
+
+# Sensu Certificates
+sensu_cert_dir:       files
+sensu_cert_file_name: sensu_client_cert.pem
+sensu_key_file_name:  sensu_client_key.pem
+
+# Sensu Version
+sensu_version: 0.23.1-1
+
+#==============================================================================
+# Sensu Server
+#==============================================================================
+
+# Redis
+sensu_server_redis_host: 127.0.0.1
+sensu_server_redis_port: 6379
+
+# API
+sensu_api_host: 127.0.0.1
+sensu_api_port: 4567
+sensu_api_user: sensu
+sensu_api_pass: placeholder
+sensu_api_auth: "{{ sensu_api_user}}:{{ sensu_api_pass }}"
+sensu_api_sock: "{{ sensu_api_host }}:{{ sensu_api_port }}"
+sensu_api_uri: "http://{{ sensu_api_auth }}@{{ sensu_api_sock }}"
+
+# RabbitMQ
+sensu_server_rabbitmq_vhost:    "/sensu"
+sensu_server_rabbitmq_hostname: "127.0.0.1"
+  # This is the RabbitMQ TLS port, if you choose to not use a secure
+  # connection, change that and the following boolean to true.
+sensu_server_rabbitmq_port:     "5671"
+sensu_server_rabbitmq_insecure: false
+sensu_server_rabbitmq_user:     "sensu"
+sensu_server_rabbitmq_pass:     "placeholder"
+
+# Dashboard
+sensu_server_dashboard_host:     "0.0.0.0"
+sensu_server_dashboard_port:     "3000"
+sensu_server_dashboard_user:     "uchiwa"
+sensu_server_dashboard_pass:     "placeholder"
+sensu_server_dashboard_refresh:  5
+
+# Init scripts
+sensu_server_patch_init_scripts: true
+
+#==============================================================================
+# Sensu Client
+#==============================================================================
+
+sensu_client:
+    name: "{{ ansible_nodename }}"
+    address: "{{ansible_ipv4.address}}"
+    safe_mode: false
+    redact: []
+    socket: {}
+    subscriptions:
+        - default
+    keepalive:
+        handler: default
+        thresholds:
+            warning: 120
+            critical: 180
+
+#==============================================================================
+# Sensu Plugins
+#==============================================================================
+
+sensu_plugin_gems: []
+sensu_plugin_pkg_dependencies: []
+sensu_handler_gems: []
+
+
+#==============================================================================
+# Sensu Checks
+#==============================================================================
+
+sensu_checks:   {}
+  ### Example
+  # sensu_checks:
+  #   test_check:
+  #     handler    : default
+  #     command    : "/bin/sh echo Hello World"
+  #     interval   : 60
+  #     subscribers:
+  #       - test
+
+
+#==============================================================================
+# Sensu Handlers
+#==============================================================================
+
+sensu_handlers: {}
+  ### Example
+  # sensu_handlers:
+  #   test_handler:
+  #     type   : pipe
+  #     command: "echo"
+
+sensu_auxiliary_handlers: {}

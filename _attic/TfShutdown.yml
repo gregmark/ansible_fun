@@ -1,0 +1,23 @@
+---
+###- name: Shutdown Top Floor Systems
+###  hosts: site
+###  remote_user: root
+###  gather_facts: yes
+
+###- include: set_local_facts.yml
+
+###- name: Set up dynamic host groups
+###  hosts: site
+###  remote_user: root
+###  gather_facts: no
+###  tasks:
+###    - name: group it real good
+###      group_by: key=datacenter_{{ ansible_local.net_env.datacenter }}
+  
+- name: Execute Shutdown
+  hosts: bigboy
+  remote_user: root
+  gather_facts: no
+  tasks:
+###    - command: poweroff
+    - command: echo 'Remove "###" comments, then comment out command:echo & hosts:bigboy'

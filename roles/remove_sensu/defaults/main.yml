@@ -1,0 +1,12 @@
+---
+# defaults file for remove_sensu
+rmsensu_embed_path: "/opt/sensu/embedded/bin"
+rmsensu_gem_exec: "{{ rmsensu_embed_path }}/gem"
+rmsensu_api_fqdn: placeholder
+rmsensu_api_port: 4567
+rmsensu_api_user: admin
+rmsensu_api_pass: placeholder
+rmsensu_api_sock: "{{ rmsensu_api_fqdn }}:{{ rmsensu_api_port }}"
+rmsensu_api_auth: "{{ rmsensu_api_user}}:{{ rmsensu_api_pass }}"
+rmsensu_api_uri: "http://{{ rmsensu_api_auth }}@{{ rmsensu_api_sock }}" 
+rmsensu_force: False

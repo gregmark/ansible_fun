@@ -1,0 +1,5 @@
+###
+### Ansible parameters for role opennms
+
+#opennms_base_pkg_version: 17.1.1
+#opennms_root_dir: /opt/opennms

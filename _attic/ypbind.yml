@@ -1,0 +1,23 @@
+---
+
+- name: Set up local facts
+  hosts: all
+  remote_user: root
+  gather_facts: yes
+  roles:
+  - { role: local_facts, tags: [ 'local' ] }
+
+- name: Ensure NIS service
+  hosts: all
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+    - name: Ensure ypbind is started
+      service: name=ypbind state=started
+      when: ansible_os_family == "RedHat"
+      notify: reload_autofs
+
+  handlers:
+    - name: Reload autofs
+      service: name=autofs state=reloaded

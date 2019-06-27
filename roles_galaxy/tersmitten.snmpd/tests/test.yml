@@ -1,0 +1,7 @@
+# tests file for snmpd
+---
+- hosts: localhost
+  connection: local
+  sudo: true
+  roles:
+    - ../../

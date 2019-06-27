@@ -1,0 +1,8 @@
+---
+
+- name: Run Essentials Role
+  hosts: site
+  remote_user: root
+  gather_facts: no
+  roles:
+    - vdvm.essentials

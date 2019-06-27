@@ -1,0 +1,39 @@
+---
+
+#- name: Clear volume processes
+#  shell: fuser -k {{ item }}
+#  with_items: "{{staleMounts.stdout_lines }}"
+#  ignore_errors: yes
+
+
+
+- name: Clear - Find bad processes
+  shell: lsof -bl 2>/dev/null | grep -E " {{ item }}/?" | awk '{print $2}' | sort -nur
+  with_items: "{{ staleMounts.stdout_lines }}"
+  when: staleMounts.stdout_lines != ""
+  register: procs
+
+#- debug: var=procs
+
+- name: Clear - kill stale procs
+  shell: kill -9 {{ item }}
+  when: procs.results != []
+  with_items: "{{ procs.results[0].stdout_lines }}"
+  ignore_errors: true
+
+- name: Clear - try fuser too
+  shell: fuser -f {{ item }}
+  when: procs.results != []
+  with_items: "{{ procs.results[0].stdout_lines }}"
+  ignore_errors: true
+
+- name: Clear - umount stale volume
+  shell: umount {{ item }}
+  with_items: "{{ staleMounts.stdout_lines }}"
+  when: procs.results != []
+  ignore_errors: true
+
+- name: Clear - run mount -a
+  command: mount -a 
+  when: procs.results != []
+  ignore_errors: true

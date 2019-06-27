@@ -1,0 +1,5 @@
+---
+# handlers file for local-facts
+#
+ - name: reload ansible_local
+   setup: filter=ansible_local

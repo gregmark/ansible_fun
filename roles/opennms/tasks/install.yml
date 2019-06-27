@@ -1,0 +1,25 @@
+---
+# tasks file for opennms
+#
+
+## Bit here maybe to make sure the repo is up to date?
+
+- name: OpenNMS - RedHat - enable opennms repos 
+  shell: yum-config-manager --enable opennms* | grep ^enabled
+  when: opennms_install == True 
+
+- name: OpenNMS - RedHat - install base packages
+  yum: name=opennms-{{ opennms_base_pkg_version }} state=present update_cache=yes
+  when: ansible_os_family == "RedHat" and opennms_install == True
+  
+- name: OpenNMS - identify jdk location
+  command: "{{ opennms_root_dir }}/bin/runjava -s"
+  when: opennms_install == True
+
+- name: OpenNMS - initialze database
+  command: "{{ opennms_root_dir }}/bin/install -dis"
+  when: opennms_install == True
+
+
+  
+  

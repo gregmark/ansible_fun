@@ -1,0 +1,29 @@
+---
+# Simple playbook to upgrade yum package openSSL
+# Run 3 ways:
+# cansible-play run_openSSL.yml
+# cansible-play run_openSSL.yml -t rhel
+# cansible-play run_openSSL.yml -t deb
+
+- name: Upgrade openSSL
+  hosts: all
+  remote_user: root
+  gather_facts: yes
+
+  tasks:
+
+    - name: REDHAT - install openSSL pkg
+      yum: "name=openssl state=latest"
+      when: ansible_os_family == "RedHat"
+      tags: [ 'rhel' ]
+
+    - name: DEBIAN - refresh apt cache
+      apt: update_cache=yes
+      when: ansible_os_family == "Debian"
+      tags: [ 'deb' ]
+
+    - name: DEBIAN - install openSSL pkg
+      apt: "name=openssl state=latest"
+      when: ansible_os_family == "Debian"
+      tags: [ 'deb' ]
+

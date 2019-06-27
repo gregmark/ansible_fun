@@ -1,0 +1,57 @@
+---
+- name: VMWare Check
+  hosts: site
+  remote_user: root
+  gather_facts: yes
+
+#- include: set_local_facts.yml
+
+- name: Find vmware guests
+  hosts: site
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: Get vmware guests from cobbler
+      group_by: key=env_{{ ansible_virtualization_type }}_{{ ansible_virtualization_role }}
+      ignore_errors: yes
+
+
+- name: Find BB guests
+  hosts: env_VMware_guest
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: Gather BB vms
+      group_by: key=env_{{ ansible_local.net_env.datacenter | default(omit) }}
+      ignore_errors: yes
+
+
+- name: Find ethernet device
+  hosts: env_BB
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: Gather eth device names
+      group_by: key=eth_{{ ansible_default_ipv4.interface | default(omit) }}
+      ignore_errors: yes
+
+# Now we just have eth devices for BB VMware Guests, so run the command:
+
+- name: Set networking optimizations
+  hosts: eth_eth0
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: Set eth0 to rx 512 buffer
+      command: "ethtool -G eth0 rx 512"
+      ignore_errors: yes
+
+- name: Set networking optimizations
+  hosts: eth_eth1
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: Set eth1 to rx 512 buffer
+      command: "ethtool -G eth1 rx 512"
+      ignore_errors: yes
+

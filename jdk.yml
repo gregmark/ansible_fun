@@ -1,0 +1,11 @@
+---
+
+- name: Download {{ oracle_java_url }}
+  hosts: ns.example.com
+  become: true
+  vars:
+    - oracle_java_url: "http://download.oracle.com/otn-pub/java/jdk/8u92-b14/jdk-8u92-linux-x64.rpm"
+  tasks:
+#    - get_url: url={{ oracle_java_url  }} dest=/tmp/jre-linux-x64.tar.gz headers="Cookie:gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" validate_certs=no
+#    - get_url: dest=/tmp/jdk-8u92-linux-x64.rpm headers='Cookie:gpw_e24=http%3A%2F%2Fwww.oracle.com%2F,oraclelicense:accept-securebackup-cookie'
+    - get_url: url=http://javadl.oracle.com/webapps/download/AutoDL?BundleId=207762 dest=/tmp/foo.rpm

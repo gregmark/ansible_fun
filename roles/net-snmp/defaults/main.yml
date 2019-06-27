@@ -1,0 +1,5 @@
+---
+# defaults file for net-snmp
+
+snmp_deb_pkgs: [ 'snmp', 'snmpd', 'snmp-mibs-downloader' ]
+snmp_rhel_pkgs: [ 'net-snmp', 'net-snmp-utils' ]

@@ -1,0 +1,69 @@
+#!/bin/bash
+
+fqdn=$(hostname)
+short_hn=
+CFM_REALM=
+
+function kaboom () {
+
+cat <<EOF
+{
+    "cfm_realm": "${CFM_REALM:-UNKNOWN}",
+    "env"      : "${ENV:-UNKNOWN}"
+}
+EOF
+
+exit
+
+}
+
+
+#=====================================================================
+# CONFIG MANAGEMENT REALM
+#=====================================================================
+
+if echo ${fqdn:-X} | grep -q "\.example\.com$" ; then
+    short_hn=$(echo ${fqdn} | sed 's/\.example\.com$//')
+    CFM_REALM=example    
+elif echo ${fqdn:-X} | grep -q "\.chalybs.net$" ; then
+    short_hn=$(echo ${fqdn} | sed 's/\.chalybs\.net$//')
+    CFM_REALM=chalybs    
+elif echo ${fqdn:-X} | grep -q "\.compass\.example\.net$" ; then
+    short_hn=$(echo ${fqdn} | sed 's/\.subarea\.example\.net$//')
+    CFM_REALM=compass    
+else
+    kaboom
+fi
+
+#=====================================================================
+# VDI CHECK
+#=====================================================================
+
+if echo $FQDN | grep -q "\.cloud$"; then
+    STACK=vdi
+    short_hn=$(echo $short_hn | sed 's/\.cloud//')
+fi
+
+#=====================================================================
+# ENVIRONMENT    
+#=====================================================================
+
+
+if [[ $short_hn =~ [0-9]q$ ]] ; then
+    ENV=qa
+elif [[ $short_hn =~ [0-9]d$ ]]; then
+    ENV=dev
+elif [[ $short_hn =~ [1-9]i$ ]]; then
+    ENV=io
+elif [[ $short_hn =~ [0-9][rx]$ ]]; then
+    ENV=research
+elif [[ $short_hn =~ [0-9]ci$ || $env_code =~ [0-9]c$ ]]; then
+    ENV=ci
+elif [[ "${stack}" == "vdi" ]] ; then
+    ENV=vdi
+else
+    ENV=deprecated
+fi
+
+#[ -z "${env_code}" -a "${stack}" != "vdi" ] && kaboom
+kaboom

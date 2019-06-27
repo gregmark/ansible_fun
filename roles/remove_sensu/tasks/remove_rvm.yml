@@ -1,0 +1,35 @@
+---
+# roles/remove_sensu/remove_rvm.yml
+
+- name: register default rvm ruby
+  command: "{{ rvm_exec }} list default string"
+  register: ruby_default
+  when: rvm_stat.stat.exists
+
+- set_fact: rvm_gem_exec=/usr/local/rvm/rubies/{{ ruby_default.stdout }}/bin/gem
+  when: rvm_stat.stat.exists
+
+- debug: var=rvm_gem_exec
+
+- stat: path={{ rvm_gem_exec }}
+  register: rvm_gem_stat
+  when: rvm_stat.stat.exists
+
+- set_fact: rvm_gem_home=/usr/local/rvm/gems/{{ ruby_default.stdout }}
+  when: rvm_stat.stat.exists
+
+- name: register RVM sensu gems
+  shell: "GEM_HOME={{ rvm_gem_home }} {{ rvm_gem_exec}} list | awk '$1 ~ /^sensu/ {print $1}'"
+  register: installed_gems_rvm
+  when: rvm_stat.stat.exists 
+
+- debug: var={{ installed_gems_rvm.stdout_lines }}
+  when: rvm_stat.stat.exists 
+
+- name: remove RVM sensu gems
+  shell: "GEM_HOME={{ rvm_gem_home }} {{ rvm_gem_exec }} uninstall -I {{ item }}"
+  with_items: installed_gems_rvm.stdout_lines | list
+  #when: ( installed_gems_rvm.stdout_lines.0 is defined ) and ( rvm_stat.stat.exists )
+  when: ( installed_gems_rvm is defined ) and ( rvm_stat.stat.exists )
+  
+

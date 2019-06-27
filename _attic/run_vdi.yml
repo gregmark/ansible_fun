@@ -1,0 +1,12 @@
+---
+- name:  Configure Virtual Desktop Instance
+  hosts: site
+  remote_user: root
+  gather_facts: yes
+
+- include: set_local_facts.yml
+- include: essentials.yml
+- include: vdi.yml
+- include: ntp.yml
+- include: smtp127.yml
+- include: net-snmp.yml

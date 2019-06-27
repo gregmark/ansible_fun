@@ -1,0 +1,127 @@
+---
+# remove_sensu/tasks/remove_sensu.yml
+
+# --- Stop Sensu Service ------------------------------------------------- #
+- name: ensure sensu service is stopped
+  service: name={{ item }} enabled=no state=stopped
+  register: stop_sensu
+  ignore_errors: yes
+  with_items:
+    - sensu-server
+    - sensu-api
+    - uchiwa
+    - sensu-client
+    - redis
+    - rabbitmq-server
+
+# --- System Ruby Gems --------------------------------------------------- #
+
+#TODO: Check that /usr/bin/gem exists
+
+- name: register SYSTEM sensu gems
+  shell: "/usr/bin/gem list | awk '$1 ~ /^sensu/ {print $1}'"
+  register: installed_gems_sys
+  ignore_errors: yes
+
+- debug: var={{ installed_gems_sys.stdout_lines }}
+
+    #- name: remove SYSTEM sensu gem dependencies
+    #  gem: name={{ item }} state=absent 
+    #  with_items:
+    #    - sensu-plugin
+    #    - sensu-extension
+    #    - sensu-em
+
+- name: remove SYSTEM sensu gems
+  gem: name={{ item }} state=absent
+  with_items: "{{ installed_gems_sys.stdout_lines }}"
+  #when: installed_gems_sys.stdout_lines.0 is defined
+  when: installed_gems_sys is defined
+
+
+# --- RVM Ruby Gems --------------------------------------------------- #
+
+- set_fact: rvm_exec=/usr/local/rvm/bin/rvm
+
+- stat: path={{ rvm_exec }}
+  register: rvm_stat
+
+- include: remove_rvm.yml
+  when: rvm_stat.stat.exists 
+
+# --- Embedded Ruby Gems ------------------------------------------------- #
+ 
+# DEBUG
+#- debug: var={{ rmsensu_gem_exec }}
+
+#- name: stat EMBEDDED sensu gem executable
+#  stat: path={{ rmsensu_gem_exec }}
+#  register: gem_stat
+
+- name: register EMBEDDED sensu gems
+  shell: "{{ rmsensu_gem_exec }} list | awk '$1 ~ /^sensu/ {print $1}'"
+  register: installed_gems_embed
+  ignore_errors: yes
+
+# DEBUG
+- debug: var={{ installed_gems_embed.stdout_lines }}
+  #when: gem_stat.stat.exists
+
+#- name: remove EMBEDDED sensu gems
+#  shell: "{{ rmsensu_gem_exec }} uninstall -I --force {{ item }}"
+#  with_items: "{{ installed_gems_embed.stdout_lines | list }}"
+#  #when: ( gem_stat.stat.exists ) and ( installed_gems_embed is defined )
+#  when: installed_gems_embed is defined
+
+  
+# --- Remove Sensu Packages & Files -------------------------------------- #
+- name: remove sensu packages
+  yum: name={{ item }} state=removed
+  with_items:
+    - sensu
+    - uchiwa
+    - redis
+    - rabbitmq-server
+  register: remove_pkgs
+
+- name: clear leftover sensu directrories
+  file: name={{ item }} state=absent
+  with_items:
+    - /etc/sensu
+    - /var/log/sensu
+    - /var/lib/redis
+    - /var/run/sensu
+    - /opt/sensu
+    - /opt/uchiwa
+
+- name: Yum install pip
+  yum: name=python-pip state=latest
+  when: ansible_distribution_major_version|int > 5
+
+- name: Pip install httplib2
+  pip: name=httplib2 state=latest
+  when: ansible_distribution_major_version|int > 5
+
+- name: Pip install urlparse2
+  pip: name=urlparse2 state=latest
+  when: ansible_distribution_major_version|int > 5
+
+
+# --- API Delete Client -------------------------------------------------- #
+- name: Delete CentOS 6+ client from sensu master
+  #command: "curl -v -X DELETE {{ rmsensu_api_uri }}/clients/{{ ansible_fqdn }}"
+  #command: curl -v -X DELETE http://admin:xcal09@sensu-master-01.chalybs.net:4567/clients/{{ ansible_fqdn }}
+  uri:
+   url=http://{{ rmsensu_api_sock }}/clients/{{ ansible_fqdn }}
+   method=DELETE
+   force_basic_auth=yes
+   user={{ rmsensu_api_user }}
+   password={{ rmsensu_api_pass }}
+  when: ansible_distribution_major_version|int > 5
+  tags: [ 'api' ]
+
+- name: Delete CentOS 5 client from sensu master
+  command: "curl -v -X DELETE {{ rmsensu_api_uri }}/clients/{{ ansible_fqdn }}"
+  when: ansible_distribution_major_version|int <= 5
+  tags: [ 'api' ]
+

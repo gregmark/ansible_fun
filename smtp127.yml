@@ -1,0 +1,9 @@
+---
+
+- name: Run postfix role, set relayhost
+  hosts: site
+  remote_user: root
+  gather_facts: no
+  roles:
+    #- local_facts
+    - xdrum.postfix

@@ -1,0 +1,25 @@
+---
+- name: VMWare Check
+  hosts: all
+  remote_user: root
+  gather_facts: yes
+
+#- include: set_local_facts.yml
+
+- name: Set up dynamic host groups
+  hosts: all
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: group it real good
+      group_by: key=env_{{ ansible_virtualization_type }}_{{ ansible_virtualization_role }}
+  
+- name: Filesystem status check
+  hosts: env_VMware_guest
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: touch a file
+      command: "touch /tmp/file"
+
+

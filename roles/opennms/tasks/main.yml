@@ -1,0 +1,6 @@
+---
+# tasks file for opennms
+#
+
+- include: install.yml
+- include: service.yml

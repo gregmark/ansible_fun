@@ -1,0 +1,15 @@
+---
+- name:  Run ntp playbook with dynamic variables
+  hosts: all
+  remote_user: root
+  gather_facts: yes
+  roles:
+    - { role: local_facts, tags: [ 'local' ] }
+    - { role: jtyr.resolv_conf, tags: [ 'net', 'dns' ] }
+    - { role: ntp, tags: [ 'net', 'ntp' ] }
+    - { role: ntp_offset_check, tags: [ 'net', 'ntp' ] }
+    - { role: xdrum.postfix, tags: [ 'net', 'mail' ] }
+#    - { role: net-snmp, tags: [ 'net', 'snmp', 'mon' ] }
+    - { role: rootEnv, tags: [ 'always' ] }
+
+

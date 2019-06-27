@@ -1,0 +1,11 @@
+---
+### roles/test
+#
+#
+
+  - name: make dir for {{ inventory_hostname }}
+    command: mkdir -p /test/local-178-{{ vm_num }}_0/updates/
+    #ignore_errors: yes
+
+  - name: copy {{ copy_num }} to {{ inventory_hostname }}
+    copy: src=patch_zip dest=/test/local-178-{{vm_num}}_0/updates/

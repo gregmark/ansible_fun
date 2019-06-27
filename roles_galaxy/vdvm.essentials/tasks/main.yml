@@ -1,0 +1,33 @@
+---
+
+- name: Include OS specific variables
+  #include_vars: "{{ ansible_distribution | lower }}.yml"
+  include_vars: "family_{{ ansible_os_family | lower }}.yml"
+ 
+- name: Define essentials_packages
+  set_fact:
+    essentials_packages: "{{ __essentials_packages | list }}"
+  when: essentials_packages is not defined
+
+- name: Define essentials_start_enable
+  set_fact:
+    essentials_start_enable: "{{ __essentials_start_enable | list }}"
+  when: essentials_start_enable is not defined
+
+- name: Install packages
+  yum: state=present pkg={{ item }}
+  with_items: essentials_packages
+  #when: ansible_distribution == 'CentOS' and ansible_distribution_major_version|int >= 6
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version|int >= 5
+
+- name: Install packages
+  apt: state=present update_cache=yes cache_valid_time=900 pkg={{ item }}
+  with_items: essentials_packages
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '14.04'
+
+- name: Start and enable services
+  service: state=started enabled=yes name={{ item }}
+  with_items: essentials_start_enable
+
+- name: Set default shell to bash
+  file: src=bash dest=/bin/sh owner=root mode=0755

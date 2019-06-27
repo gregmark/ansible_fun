@@ -1,0 +1,6 @@
+---
+
+
+- name: OpenNMS - RedHat - disable opennms repos
+  shell: yum-config-manager --disable opennms* | grep ^enabled
+

@@ -1,0 +1,11 @@
+---
+- hosts: tomcat-servers 
+  sudo: true
+  gather_facts: no
+
+  pre_tasks:
+    - set_fact: global_java_home=/myjava
+
+  roles:
+    - { role: ansiblebit.oracle-java, 'oracle_java_home:{{ global_java_home }}', 'oracle_java_set_as_default:yes' }
+    - { role: tomcat, 'JAVA_HOME:{{ global_java_home }}' }

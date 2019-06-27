@@ -1,0 +1,4 @@
+---
+- name: install redis
+  #yum: name=redis state=installed enablerepo=epel
+  yum: name=redis state=installed enablerepo={{ redis_epel_reponame }}

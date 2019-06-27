@@ -1,0 +1,116 @@
+---
+# sensu/tasks/common.yml
+
+- name: add DEBIAN sensu repo key
+  apt_key: url=http://repositories.sensuapp.org/apt/pubkey.gpg state=present
+  when: ansible_os_family == "Debian"
+  tags: [ 'pkgs' ]
+
+- name: remove old DEBIAN source file
+  file: path=/etc/apt/sources.list.d/sensu-server.list state=absent
+  when: ansible_os_family == "Debian"
+  tags: [ 'pkgs' ]
+
+- name: add DEBIAN sensu repo
+  copy: src=sensu.list dest=/etc/apt/sources.list.d/
+  register: aptrepo
+  when: ansible_os_family == "Debian"
+  tags: [ 'pkgs' ]
+
+- name: refresh DEBIAN apt cache
+  apt: update_cache=yes
+  when: aptrepo.changed and ansible_os_family == "Debian"
+  tags: [ 'pkgs' ]
+
+- name: install DEBIAN sensu apt pkg
+  apt: name=sensu={{ sensu_version }} state=present
+  when: ansible_os_family == "Debian"
+  tags: [ 'pkgs' ]
+
+- name: add REDHAT sensu repo
+  copy: src=sensu.repo dest=/etc/yum.repos.d
+  when: ansible_os_family == "RedHat"
+  tags: [ 'pkgs' ]
+
+- name: install REDHAT sensu yum pkg
+  yum: name=sensu-{{ sensu_version }} state=present disablerepo=* enablerepo=sensu*
+  when: ansible_os_family == "RedHat"
+  tags: [ 'pkgs' ]
+
+- name: set embedded ruby usage, true/false
+  lineinfile:
+    dest=/etc/default/sensu
+    regexp=^EMBEDDED_RUBY=
+    line=EMBEDDED_RUBY={{ sensu_embedded_ruby }}
+  tags: [ 'config' ]
+
+- name: set which user to use
+  lineinfile:
+    dest=/etc/default/sensu
+    regexp=^USER=
+    line=USER={{ sensu_user }}
+  tags: [ 'config' ]
+
+- name: create the SSL directory
+  file:
+    path=/etc/sensu/ssl
+    owner={{ sensu_user }}
+    group={{ sensu_group }}
+    mode=0750
+    state=directory
+  when: not sensu_server_rabbitmq_insecure
+  tags: [ 'config' ]
+
+- name: copy the SSL certificate & key
+  copy:
+    src={{ sensu_cert_dir }}/{{ item }}
+    dest=/etc/sensu/ssl/{{ item }}
+    owner={{ sensu_user }}
+    group={{ sensu_group }}
+    mode=0640
+    backup=yes
+  with_items:
+    - "{{ sensu_cert_file_name }}"
+    - "{{ sensu_key_file_name }}"
+  when: not sensu_server_rabbitmq_insecure
+  notify:
+    - restart sensu server
+    - restart sensu client
+  tags: [ 'config' ]
+
+- name: generate rabbitmq.json
+  template:
+    src=rabbitmq.json.j2
+    dest=/etc/sensu/conf.d/rabbitmq.json
+    owner={{ sensu_user }}
+    group={{ sensu_group }}
+    mode=0640
+    backup=yes
+  notify:
+    - restart sensu server
+    - restart sensu client
+  tags: [ 'rabbit', 'rabbit-sensu', 'config' ]
+
+- name: Force ownership on /etc/sensu and /var/log/sensu
+  file:
+    path={{ item }}
+    state=directory
+    recurse=yes
+    owner={{ sensu_user }}
+    group={{ sensu_group }}
+    mode=0770
+  with_items:
+    - /etc/sensu
+    - /var/log/sensu
+  notify:
+    - restart sensu server
+    - restart sensu client
+    - restart uchiwa
+  tags: [ 'config' ]
+
+- include: redhat5_fix.yml
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "5"
+  tags: [ 'fix' ]
+
+- include: plugins.yml
+  tags: [ 'pkgs' ]

@@ -1,0 +1,7 @@
+# snmpd control (yes means start daemon).
+SNMPDRUN=yes
+
+# snmpd options (use syslog, close stdin/out/err).
+CONFS="/etc/snmp/snmpd.conf.disk,/etc/snmp/snmpd.conf"
+SNMPDOPTS="-Lsd -Lf /dev/null -p /var/run/snmpd.pid -c $CONFS"
+df -lP | awk '/^\// { print "disk", $6, "{{ snmp_dsk_minpercent }}%" }' > /etc/snmp/snmpd.conf.disk

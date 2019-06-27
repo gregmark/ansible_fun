@@ -1,0 +1,18 @@
+---
+
+- name: rh5fix - register version of pkg initcripts
+  shell: rpm -qa --qf "%{name} %{version}\n" | awk '$1 == "initscripts" {print $2}'
+  register: initscripts_ver
+  
+- debug: var=initscripts_ver.stdout
+  
+- name: r5fix - workaround for old RHEL systems
+  copy: 
+    src: etc/profile.d/sensu.sh
+    dest: /etc/profile.d/sensu.sh
+    owner: root
+    group: root
+    mode: 0644
+  when: initscripts_ver.stdout|version_compare('8.45.32', '<')
+  notify: 
+    - restart sensu client

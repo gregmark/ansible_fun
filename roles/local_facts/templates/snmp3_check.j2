@@ -1,0 +1,31 @@
+#!/bin/bash
+
+snmp3_check=
+
+function kaboom () {
+cat <<EOF
+{
+    "snmp3_check": "${snmp3_check:-UNKNOWN}"
+}
+EOF
+
+exit
+}
+
+#=====================================================================
+# Check SNMPv3 functionality
+#=====================================================================
+
+user=opennmsUser
+pass=tic21@Blotto
+snmp_x=/usr/bin/snmpget
+
+cmd="$snmp_x -On -v3 -l authPriv -u $user -a MD5 -A $pass -x DES -X $pass localhost sysObjectID.0"
+
+if [ -x "${snmp_x}" ]; then
+
+     snmp3_check=$( $cmd &>/dev/null  && echo pass || echo fail )
+
+fi
+
+kaboom 

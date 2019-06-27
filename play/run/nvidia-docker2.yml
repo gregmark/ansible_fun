@@ -1,0 +1,26 @@
+---
+
+- name: nvidia-docker install and configure
+  hosts: localhost
+  connection: local
+  gather_facts: yes
+  vars:
+    docker_daemon_json:
+      runtimes:
+        nvidia:
+          path: /usr/bin/nvidia-container-runtime
+          runtimeArgs: []
+      default-runtime: nvidia
+      bip: 192.168.10.0/23
+    _ubuntu_repo_dist_name: ubuntu18.04
+  roles:
+    - { role: nvidia.nvidia_docker }
+  pre_tasks:
+    - name: ubuntu dependency
+      fail:
+        msg: "No {{ ansible_distribution }}! This playbook is not for you!"
+      when: ansible_distribution != "Ubuntu"
+
+
+
+# vim: ts=2 et ft=yaml
